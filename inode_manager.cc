@@ -2,6 +2,7 @@
 #include "math.h"
 #include "cstring"
 #include "time.h"
+#include "map"
 
 // disk layer -----------------------------------------
 
@@ -31,9 +32,9 @@ blockid_t block_manager::alloc_block() {
      * note: you should mark the corresponding bit in block bitmap when alloc.
      * you need to think about which block you can start to be allocated.
      */
-    for (int i = BLOCK_NUM - 1; i >= 0; --i) {
+    for (uint32_t i = BLOCK_NUM - 1; i >= 0; --i) {
         if (using_blocks.find(i) == using_blocks.end()) {
-            using_blocks[i] = 1;
+            using_blocks.insert(std::pair<uint32_t, int>(i, 1));
             --rest_block;
             return i;
         }
@@ -128,6 +129,7 @@ uint32_t inode_manager::alloc_inode(uint32_t type) {
             delete inode;
             return inum;
         }
+        inode = NULL;
     }
     return 0;
 }
@@ -165,7 +167,11 @@ struct inode *inode_manager::get_inode(uint32_t inum) {
         return NULL;
     }
 
-    return ino;
+    // attention 必须重新分配并赋值，char[] buffer会被释放
+    inode_t *inode_obj = (inode_t*) malloc(sizeof(inode_t));
+    *inode_obj = *ino;
+
+    return inode_obj;
 }
 
 void inode_manager::put_inode(uint32_t inum, struct inode *ino) {

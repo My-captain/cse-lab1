@@ -321,13 +321,14 @@ void inode_manager::get_attr(uint32_t inum, extent_protocol::attr &a) {
 void inode_manager::remove_file(uint32_t inum) {
     /*
      * your code goes here
-     * note: you need to consider about both the data block and inode of the file
+     * note: you need to consider both the data block and inode of the file
      */
     inode_t *file_node = get_inode(inum);
     if (file_node==NULL)
         return;
-
+    // 文件共占用多少个block
     int nblock = (int) ceil((double) (file_node->size) / (double) BLOCK_SIZE);
+    // 释放间接引用
     if (nblock>NDIRECT){
         // 存在间接引用
         char indirect_block_refs[BLOCK_SIZE];
@@ -339,9 +340,12 @@ void inode_manager::remove_file(uint32_t inum) {
         }
         bm->free_block(file_node->blocks[NDIRECT]);
     }
+    // 释放直接引用
     for (int i = 0; i < MIN(nblock, NDIRECT); ++i) {
         bm->free_block(file_node->blocks[i]);
     }
+
+    // attention mem leaky：必须手动释放
     delete file_node;
     put_inode(inum, new inode());
     return;

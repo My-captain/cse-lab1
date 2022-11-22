@@ -20,23 +20,21 @@ chfs_client::chfs_client(std::string extent_dst, std::string lock_dst) {
         printf("error init root dir\n"); // XYB: init root dir
 }
 
-chfs_client::inum
-chfs_client::n2i(std::string n) {
+// 字符串inum转数值型
+chfs_client::inum chfs_client::n2i(std::string n) {
     std::istringstream ist(n);
     unsigned long long finum;
     ist >> finum;
     return finum;
 }
 
-std::string
-chfs_client::filename(inum inum) {
+std::string chfs_client::filename(inum inum) {
     std::ostringstream ost;
     ost << inum;
     return ost.str();
 }
 
-bool
-chfs_client::isfile(inum inum) {
+bool chfs_client::isfile(inum inum) {
     extent_protocol::attr a;
 
     if (ec->getattr(inum, a) != extent_protocol::OK) {
@@ -58,14 +56,12 @@ chfs_client::isfile(inum inum) {
  * 
  * */
 
-bool
-chfs_client::isdir(inum inum) {
+bool chfs_client::isdir(inum inum) {
     // Oops! is this still correct when you implement symlink?
     return !isfile(inum);
 }
 
-int
-chfs_client::getfile(inum inum, fileinfo &fin) {
+int chfs_client::getfile(inum inum, fileinfo &fin) {
     int r = OK;
 
     printf("getfile %016llx\n", inum);
@@ -85,8 +81,7 @@ chfs_client::getfile(inum inum, fileinfo &fin) {
     return r;
 }
 
-int
-chfs_client::getdir(inum inum, dirinfo &din) {
+int chfs_client::getdir(inum inum, dirinfo &din) {
     int r = OK;
 
     printf("getdir %016llx\n", inum);
@@ -104,17 +99,16 @@ chfs_client::getdir(inum inum, dirinfo &din) {
 }
 
 
-#define EXT_RPC(xx) do { \
-    if ((xx) != extent_protocol::OK) { \
-        printf("EXT_RPC Error: %s:%d \n", __FILE__, __LINE__); \
-        r = IOERR; \
-        goto release; \
-    } \
+#define EXT_RPC(xx) do {                                        \
+    if ((xx) != extent_protocol::OK) {                          \
+        printf("EXT_RPC Error: %s:%d \n", __FILE__, __LINE__);  \
+        r = IOERR;                                              \
+        goto release;                                           \
+    }                                                           \
 } while (0)
 
 // Only support set size of attr
-int
-chfs_client::setattr(inum ino, size_t size) {
+int chfs_client::setattr(inum ino, size_t size) {
     int r = OK;
 
     /*
@@ -126,8 +120,7 @@ chfs_client::setattr(inum ino, size_t size) {
     return r;
 }
 
-int
-chfs_client::create(inum parent, const char *name, mode_t mode, inum &ino_out) {
+int chfs_client::create(inum parent, const char *name, mode_t mode, inum &ino_out) {
     int r = OK;
 
     /*
@@ -139,8 +132,7 @@ chfs_client::create(inum parent, const char *name, mode_t mode, inum &ino_out) {
     return r;
 }
 
-int
-chfs_client::mkdir(inum parent, const char *name, mode_t mode, inum &ino_out) {
+int chfs_client::mkdir(inum parent, const char *name, mode_t mode, inum &ino_out) {
     int r = OK;
 
     /*
@@ -152,8 +144,7 @@ chfs_client::mkdir(inum parent, const char *name, mode_t mode, inum &ino_out) {
     return r;
 }
 
-int
-chfs_client::lookup(inum parent, const char *name, bool &found, inum &ino_out) {
+int chfs_client::lookup(inum parent, const char *name, bool &found, inum &ino_out) {
     int r = OK;
 
     /*
@@ -165,8 +156,7 @@ chfs_client::lookup(inum parent, const char *name, bool &found, inum &ino_out) {
     return r;
 }
 
-int
-chfs_client::readdir(inum dir, std::list <dirent> &list) {
+int chfs_client::readdir(inum dir, std::list <dirent> &list) {
     int r = OK;
 
     /*
@@ -178,8 +168,7 @@ chfs_client::readdir(inum dir, std::list <dirent> &list) {
     return r;
 }
 
-int
-chfs_client::read(inum ino, size_t size, off_t off, std::string &data) {
+int chfs_client::read(inum ino, size_t size, off_t off, std::string &data) {
     int r = OK;
 
     /*
@@ -190,9 +179,7 @@ chfs_client::read(inum ino, size_t size, off_t off, std::string &data) {
     return r;
 }
 
-int
-chfs_client::write(inum ino, size_t size, off_t off, const char *data,
-                   size_t &bytes_written) {
+int chfs_client::write(inum ino, size_t size, off_t off, const char *data, size_t &bytes_written) {
     int r = OK;
 
     /*

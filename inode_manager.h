@@ -96,6 +96,7 @@ typedef struct inode {
 } inode_t;
 
 class inode_manager {
+    // inode的管理是通过查看是否type为0来识别空闲inode的
 private:
     block_manager *bm;
 
@@ -106,16 +107,23 @@ private:
 public:
     inode_manager();
 
+    // 根据类型（目录或文件）分配inode，并返回inode号
     uint32_t alloc_inode(uint32_t type);
 
+    // 释放inode及其占用空间
     void free_inode(uint32_t inum);
 
+    // 根据inode号读取文件content及其size
     void read_file(uint32_t inum, char **buf, int *size);
 
+    // 根据inode号写文件content及其size
+    // 文件超出直接索引范围时，最后一个盘块是索引块（存储着间接索引的盘块号）
     void write_file(uint32_t inum, const char *buf, int size);
 
+    // 根据inode号删除文件
     void remove_file(uint32_t inum);
 
+    // 获取inode的属性
     void get_attr(uint32_t inum, extent_protocol::attr &a);
 };
 

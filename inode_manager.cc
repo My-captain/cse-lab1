@@ -144,7 +144,8 @@ void inode_manager::free_inode(uint32_t inum) {
     if (inode == NULL) {
         return;
     }
-    // TODO 待实现
+    // warn 直接调用删除文件是否可行？
+    remove_file(inum);
     return;
 }
 
@@ -232,14 +233,7 @@ void inode_manager::read_file(uint32_t inum, char **buf_out, int *size) {
     return;
 }
 
-/* alloc/free blocks if needed */
 void inode_manager::write_file(uint32_t inum, const char *buf, int size) {
-    /*
-     * your code goes here.
-     * note: write buf to blocks of inode inum.
-     * you need to consider the situation when the size of buf
-     * is larger or smaller than the size of original inode
-     */
     timespec now;
     if (clock_gettime(CLOCK_REALTIME, &now) != 0)
         return;
